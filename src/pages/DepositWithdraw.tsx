@@ -142,23 +142,23 @@ const DepositWithdraw = (props: any) => {
     let pairAddress = await tokenVault.getPairAddress(spcAddress, wethAddress);
     let pairAddress1 = await tokenVault.getPairAddress(spcAddress, xxxAddress);
     let pairAddress2 = await tokenVault.getPairAddress(xxxAddress, wethAddress);
-    console.log("totolVaule Locked amount ---", totalVauleLocked);
-    console.log("token0 value locked amount ---", token0Locked);
-    console.log("token1 value locked amount ---", token1Locked);
-    console.log("pairAddress SPC-WETH ---- ", pairAddress);
-    console.log("pairAddress SPC-XXX ---- ", pairAddress1);
-    console.log("pairAddress XXX-WETH ---- ", pairAddress2);
+    // console.log("totolVaule Locked amount ---", totalVauleLocked);
+    // console.log("token0 value locked amount ---", token0Locked);
+    // console.log("token1 value locked amount ---", token1Locked);
+    // console.log("pairAddress SPC-WETH ---- ", pairAddress);
+    // console.log("pairAddress SPC-XXX ---- ", pairAddress1);
+    // console.log("pairAddress XXX-WETH ---- ", pairAddress2);
 
   }
 
   const handleSpcChange = (e: any) => {
     setSpcAmount(e.target.value);
-    setWethAmount(previewAssets(spcAmount, true));
+    setWethAmount(previewAssets(e.target.value, true));
   };
 
   const handleWethChange = (e: any) => {
     setWethAmount(e.target.value);
-    setSpcAmount(previewAssets(wethAmount, false))
+    setSpcAmount(previewAssets(e.target.value, false))
   };
 
   const handleDepositPairClick = async (

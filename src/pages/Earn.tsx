@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaEthereum } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
 interface TableRow {
   id: number;
   network: string;
@@ -11,13 +10,13 @@ interface TableRow {
   apy: string;
   tvl: string;
 }
-
 interface TableProps {
   rows: TableRow[];
   onRowClick: (row: TableRow) => void;
+   searchQuery: string;
+  handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
-
-const EarnTable: React.FC<TableProps> = ({ rows, onRowClick }) => {
+const EarnTable: React.FC<TableProps> = ({ rows, onRowClick, searchQuery, handleSearchChange  }) => {
   const sortedRows = [...rows].sort((a, b) => a.id - b.id);
   const handleRowClick = (row: TableRow) => {
     onRowClick(row);
@@ -37,7 +36,7 @@ const EarnTable: React.FC<TableProps> = ({ rows, onRowClick }) => {
                               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                           </svg>
                       </div>
-                      <input type="text" id="table-search-users" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search..." />
+                      <input type="text" value={searchQuery} onChange={handleSearchChange} id="table-search-users" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search..." />
                     </div>
                   </th>
                   <th scope="col" className="px-6 py-3">
@@ -57,7 +56,7 @@ const EarnTable: React.FC<TableProps> = ({ rows, onRowClick }) => {
           <tbody>
             {sortedRows.map((row) => (
               <tr key={row.id} onClick={() => handleRowClick(row)} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <td className="w-2 p-4">{row.network === 'eth' && <FaEthereum className="w-6 h-6 mr-2" />}{row.network === 'polygon' && <img src="polygon.png" className="w-6 h-6 mr-2" />}</td>
+                <td className="w-2 p-4">{row.network === 'eth' && <FaEthereum className="w-6 h-6 mr-2" />}{row.network === 'polygon' && <img src="polygon.png" className="w-6 h-6 mr-2" />}{row.network === 'bnb' && <img src="bnb.png" className="w-6 h-6 mr-2" />}{row.network === 'fantom' && <img src="fantom.png" className="w-6 h-6 mr-2" />}{row.network === 'arbitrum' && <img src="arbitrum.png" className="w-6 h-6 mr-2" />}{row.network === 'cronos' && <img src="cronos.png" className="w-6 h-6 mr-2" />}</td>
                 <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"><div className="pl-3"><div className="text-base font-semibold">{row.name}</div></div></th>
                 <td className="w-8 p-4">{row.wallet}</td>
                 <td className="w-8 p-4">{row.deposited}</td>
@@ -69,114 +68,133 @@ const EarnTable: React.FC<TableProps> = ({ rows, onRowClick }) => {
       </table>
   )
 }
-
-const Earn = (props: any) => {
+const Earn = () => {
   const [rows, setRows] = useState<TableRow[]>([]);
-  const [isClickedClearBtn, setIsClickedClearBtn] = useState(false);
   const navigate = useNavigate();
   const handleRowClick = (row: TableRow) => {
     navigate('/vault');
   }
-  const [isClick, setIsClick] = useState(false);
-
-  const buttonClasses = `text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 ${
-    isClick ? 'dark:bg-blue-700 dark:text-white dark:border-blue-500 dark:hover:text-white dark:focus:ring-blue-800' : ''
-  }`;
-
-  const handleButtonClick = (buttonRows: TableRow[]) => {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  }
+  const filteredRows = rows.filter(row =>
+    row.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const [buttonClicked, setButtonClicked] = useState<{ [key: string]: boolean }>({});
+  const handleButtonClick = (buttonId: string, buttonRows: TableRow[]) => {
+    if (buttonId === "clearBtn") {
+      setButtonClicked((prevState: { [key: string]: boolean }) => {
+        const updatedState: { [key: string]: boolean } = {};
+        Object.keys(prevState).forEach((key) => {
+          updatedState[key] = false;
+        });
+        return updatedState;
+      });
+      setRows(buttonRows); 
+      return;
+    }
+    setButtonClicked((prevState: { [key: string]: boolean }) => ({
+      ...prevState,
+      [buttonId]: !prevState[buttonId]
+    }));
     setRows((prevRows) => {
-      setIsClick((prevIsClick) => !prevIsClick);
-
       const isDisplayed = buttonRows.every((row) =>
         prevRows.some((prevRows) => prevRows.id === row.id)
       );
       if(isDisplayed){
-        setIsClickedClearBtn(true);
         return prevRows.filter(
           (prevRows) => !buttonRows.some((row) => row.id === prevRows.id)
         );
-      } else {
-        setIsClickedClearBtn(false);
       }
-
       return [...prevRows, ...buttonRows];
     });
   };
-
+  const buttons = [
+    { id: 'etherBtn', label: <FaEthereum className="w-12 h-6" />, data: [
+      {id:1, network: 'eth', name: 'SPC-WETH vLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:2, network: 'eth', name: 'SPC-WETH vLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
+      ]},
+    { id: 'polygonBtn', label: <img src="polygon.png" className="w-6 h-6 mr-3 ml-3" />, data: [
+      {id:3, network: 'polygon', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:4, network: 'polygon', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
+      ]},
+    { id: 'bnbBtn', label: <img src="bnb.png" className="w-6 h-6 mr-3 ml-3" />, data: [
+      {id:5, network: 'bnb', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:6, network: 'bnb', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
+      ]},
+    { id: 'fantomBtn', label: <img src="fantom.png" className="w-6 h-6 mr-3 ml-3" />, data: [
+      {id:7, network: 'fantom', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:8, network: 'fantom', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
+      ]},
+    { id: 'arbitrumBtn', label: <img src="arbitrum.png" className="w-6 h-6 mr-3 ml-3" />, data: [
+      {id:9, network: 'arbitrum', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:10, network: 'arbitrum', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
+      ]},
+    { id: 'cronosBtn', label: <img src="cronos.png" className="w-6 h-6 mr-3 ml-3" />, data: [
+      {id:11, network: 'cronos', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:12, network: 'cronos', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
+      ]}
+  ];
   useEffect(() => {
-    // Fetch or set the initial rows data here
     const initialRows: TableRow[] = [
       { id: 1, network: 'eth', name: 'SPC-WETH vLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
       { id: 2, network: 'eth', name: 'SPC-WETH vLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
       { id: 3, network: 'polygon', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
       { id: 4, network: 'polygon', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
+      {id:5, network: 'bnb', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:6, network: 'bnb', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:7, network: 'fantom', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:8, network: 'fantom', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:9, network: 'arbitrum', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:10, network: 'arbitrum', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:11, network: 'cronos', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+      {id:12, network: 'cronos', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
     ];
-
     setRows(initialRows);
   }, []);
-
   return (
     <>
       <div className="mb-4 flex justify-between items-center">
         <div>
-          <button
-            id="etherBtn" 
-            type="button" 
-            onClick={() => 
-              handleButtonClick([
-                {id:1, network: 'eth', name: 'SPC-WETH vLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
-                {id:2, network: 'eth', name: 'SPC-WETH vLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
-                ])
-            } 
-            className={buttonClasses}
-          >
-            <FaEthereum className="w-12 h-6"/>
-          </button>
-          <button 
-            id="polygonBtn"
-            type="button" 
-            onClick={() => 
-              handleButtonClick([
-                {id:3, network: 'polygon', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
-                {id:4, network: 'polygon', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
-                ])
-            } 
-            className={buttonClasses}
-          >
-            <img src="polygon.png" className="w-6 h-6 mr-3 ml-3"/>
-          </button>
-          <button type="button" className={buttonClasses}>
-            <FaEthereum className="w-12 h-6"/>
-          </button>
-          <button type="button" className={buttonClasses}>
-            <FaEthereum className="w-12 h-6"/>
-          </button>
-          <button type="button" className={buttonClasses}>
-            <FaEthereum className="w-12 h-6"/>
-          </button>
-          <button type="button" className={buttonClasses}>
-            <FaEthereum className="w-12 h-6"/>
-          </button>
+          {buttons.map((button) => (
+            <button
+              key={button.id}
+              className={`border border-blue-700 hover:bg-blue-700 hover:text-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 ml-auto bg-secondary${
+                buttonClicked[button.id] ? 'bg-secondary' : ''
+              }`}
+              onClick={() => handleButtonClick(button.id, button.data)}
+            >
+              {button.label}
+            </button>
+          ))}
         </div>
-        {!isClickedClearBtn &&
-        <button type="button" onClick={() => 
-              handleButtonClick([
-                {id:1, network: 'eth', name: 'SPC-WETH vLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
-                {id:2, network: 'eth', name: 'SPC-WETH vLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
-                {id:3, network: 'polygon', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
-                {id:4, network: 'polygon', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
-                ])
-            }  className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 ml-auto">
+        <button
+          id="clearBtn"
+          type="button" 
+          onClick={() => 
+            handleButtonClick('clearBtn', [
+              { id: 1, network: 'eth', name: 'SPC-WETH vLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
+              { id: 2, network: 'eth', name: 'SPC-WETH vLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
+              { id: 3, network: 'polygon', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
+              { id: 4, network: 'polygon', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
+              {id:5, network: 'bnb', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+              {id:6, network: 'bnb', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+              {id:7, network: 'fantom', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+              {id:8, network: 'fantom', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+              {id:9, network: 'arbitrum', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+              {id:10, network: 'arbitrum', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+              {id:11, network: 'cronos', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
+              {id:12, network: 'cronos', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
+              ])
+          }  className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 ml-auto">
           Clear All
-        </button>}
-
+        </button>
       </div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg border-t">
-        {/* <EarnTable rows={rows} onRowClick={handleRowClick}/> */}
-        <EarnTable rows={rows} onRowClick={handleRowClick}/>
+        <EarnTable rows={filteredRows} onRowClick={handleRowClick} searchQuery={searchQuery} handleSearchChange={handleSearchChange} />
       </div>
     </>
   );
 };
-
 export default Earn;
