@@ -10,6 +10,7 @@ import react from '@vitejs/plugin-react'
 //         secure: false,
 //       },
 //     },
+//     cors: false
 //   },
 //   plugins: [react()],
 // });
