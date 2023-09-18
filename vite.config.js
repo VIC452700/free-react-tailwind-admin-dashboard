@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import http from "https";
 
 // export default defineConfig({
 //   server: {
@@ -21,6 +22,8 @@ export default defineConfig({
         target: "https://defivaultservice.onrender.com",
         changeOrigin: true,
         secure: false,
+        ws: true,
+        agent: new http.Agent(),
       },
     },
   },
