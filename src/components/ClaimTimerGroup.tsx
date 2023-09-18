@@ -38,7 +38,7 @@ function ClaimTimerGroup(props: any) {
 
   const handle=async()=> {
      try {
-      const res = await Axios.get("/test");
+      const res = await Axios.get("/api");
       const data = res.data;
       
       console.log(res.data); //{vaultTime: 518296, userTime: 604696}
