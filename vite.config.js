@@ -12,11 +12,12 @@ import react from '@vitejs/plugin-react'
 //   },
 //   plugins: [react()],
 // });
+
 export default defineConfig({
   server: {
     proxy: {
       "/test": {
-        target: "https://defivualt.onrender.com",
+        target: "https://defivaultservice.onrender.com",
         secure: false,
       },
     },
