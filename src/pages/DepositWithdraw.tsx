@@ -69,7 +69,8 @@ const DepositWithdraw = (props: any) => {
   const wethAddress = '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14';
   const spcAddress = '0xe2B0E50603Cd62569A94125628D796ad21339299';
   const xxxAddress = '0xe11B03C04e87430F8EAd92b245625c88c176C044';
-  const vaultAddress = '0xe810399b60f1Fb94EfdF9826Cb9e378E44b85206'; 
+  // const vaultAddress = '0xe810399b60f1Fb94EfdF9826Cb9e378E44b85206'; // origin (no withdraw)
+  const vaultAddress = '0x4B3f9d86535FDe6f38f5C623D2b4dF5cE8989e41'; // withdraw
   const treasuryAddress = '0x8F0631AFF14724eaA7EEEF4F6F7e4A3c98b4CC68';
 
   const handleConnectClick = async () => {
@@ -133,22 +134,6 @@ const DepositWithdraw = (props: any) => {
     let lpEthFixed = parseFloat(lpEth).toFixed(3);
 
     setLPToken(lpEthFixed);
-
-
-    // get several factors
-    let totalVauleLocked = await tokenVault.getTVL();
-    let token0Locked = await tokenVault.getLockedAmountOfToken0();
-    let token1Locked = await tokenVault.getLockedAmountOfToken1();
-    let pairAddress = await tokenVault.getPairAddress(spcAddress, wethAddress);
-    let pairAddress1 = await tokenVault.getPairAddress(spcAddress, xxxAddress);
-    let pairAddress2 = await tokenVault.getPairAddress(xxxAddress, wethAddress);
-    // console.log("totolVaule Locked amount ---", totalVauleLocked);
-    // console.log("token0 value locked amount ---", token0Locked);
-    // console.log("token1 value locked amount ---", token1Locked);
-    // console.log("pairAddress SPC-WETH ---- ", pairAddress);
-    // console.log("pairAddress SPC-XXX ---- ", pairAddress1);
-    // console.log("pairAddress XXX-WETH ---- ", pairAddress2);
-
   }
 
   const handleSpcChange = (e: any) => {
@@ -176,28 +161,66 @@ const DepositWithdraw = (props: any) => {
       const spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
       const wethToken = new ethers.Contract(wethAddress, WETH, signer);
 
-      const spcEther = ethers.parseUnits(spcAmount, 'ether');
-      const wethEther = ethers.parseUnits(wethAmount, 'ether');
+      // const spcEther = ethers.parseUnits(spcAmount, 'ether');
+      // const wethEther = ethers.parseUnits(wethAmount, 'ether');
       // Deposit Asset
-      await spcToken.approve(vaultAddress, spcEther);
-      await wethToken.approve(vaultAddress, wethEther);
-      await tokenVault.depositAssetPair(spcEther, wethEther);
+      // await spcToken.approve(vaultAddress, spcEther);
+      // await wethToken.approve(vaultAddress, wethEther);
+      // await tokenVault.depositAssetPair(spcEther, wethEther);
 
-      // ------------------------------ First Add Liquidity With XXX -------------------------------
-      //const xxxToken = new ethers.Contract(xxxAddress, XXXToken, signer);
-      // await spcToken.transfer(vaultAddress, spcEther);
-      // await wethToken.transfer(vaultAddress, wethEther);
-      
-      // let amountXXX1ForSPC = await tokenVault.getTotalAmountOfXXXForLiquidity(spcEther, 1000); //token amount 100000, token ratio(in:out)-1000:1000
-      // let amountXXX2ForWETH = await tokenVault.getTotalAmountOfXXXForLiquidity(wethEther, 1852000); //token amount 100,    token ratio(in:out)-1000:1852000
-      // let totalXXX = amountXXX1ForSPC + amountXXX2ForWETH; 
-      
-      // await xxxToken.approve(vaultAddress, totalXXX);
-      // await xxxToken.transfer(vaultAddress, totalXXX);
+      // --------------------------------------------------------------------------------- SPC - WETH POOL
+      // User -> Vault (tokenA, tokenB), Approve(Vault Address) -> Transfer
+      // const amount1 = ethers.parseUnits('185.2', 'ether');
+      // const amount2 = ethers.parseUnits('0.1', 'ether');
+      // await spcToken.approve(vaultAddress, amount1);
+      // await wethToken.approve(vaultAddress, amount2);
+      // await spcToken.transfer(vaultAddress, amount1);
+      // await wethToken.transfer(vaultAddress, amount2);
 
-      // let amount1 = await tokenVault.addLiquidityWithERC20(spcAddress, xxxAddress, spcEther, amountXXX1ForSPC);
-      // let amount2 = await tokenVault.addLiquidityWithERC20(wethAddress, xxAddress, wethEther, amountXXX2ForWETH);
-      // let {spcLiquidity, wethLiquidity} = await tokenVault.addLiquidityWithXXX(spcEther, amountXXX1ForSPC, wethEther, amountXXX2ForWETH);
+      // Add liquidity to the pool
+      // let liquidity = await tokenVault.addLiquidityWithERC20(
+      //   spcAddress,
+      //   wethAddress,
+      //   amount1,
+      //   amount2
+      // );
+      // console.log('liquidity ', liquidity);
+
+      // ---------------------------------------------------------------------------------- WETH - XXX POOL
+      // User -> Vault (tokenA, tokenB), Approve(Vault Address) -> Transfer
+      const xxxToken = new ethers.Contract(xxxAddress, XXXToken, signer);
+      const amount1 = ethers.parseUnits('0.1', 'ether');
+      const amount2 = ethers.parseUnits('185.2', 'ether');
+      await wethToken.approve(vaultAddress, amount1);
+      await xxxToken.approve(vaultAddress, amount2);
+      await wethToken.transfer(vaultAddress, amount1);
+      await xxxToken.transfer(vaultAddress, amount2);
+
+      // Add liquidity to the pool
+      let liquidity = await tokenVault.addLiquidityWithERC20(
+        wethAddress,
+        xxxAddress,
+        amount1,
+        amount2
+      );
+      console.log('liquidity ', liquidity);
+
+      // ------------------------------------------------------------------------------------ SPC - XXX POOL
+      // User -> Vault (tokenA, tokenB), Approve(Vault Address) -> Transfer
+      // const amount = ethers.parseUnits('10000', 'ether');
+      // await spcToken.approve(vaultAddress, amount);
+      // await xxxToken.approve(vaultAddress, amount);
+      // await spcToken.transfer(vaultAddress, amount);
+      // await xxxToken.transfer(vaultAddress, amount);
+
+      // Add liquidity to the pool
+      // let liquidity = await tokenVault.addLiquidityWithERC20(
+      //   spcAddress,
+      //   xxxAddress,
+      //   amount,
+      //   amount
+      // );
+      // console.log('liquidity ', liquidity);
     } catch (error: any) {
       console.log(error);
     }
@@ -228,7 +251,8 @@ const DepositWithdraw = (props: any) => {
       const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
 
       const shareEther = ethers.parseUnits(amountShare, 'ether');
-      await tokenVault.withdrawAssetPair(shareEther);
+      // await tokenVault.withdrawAssetPair(shareEther);
+      await tokenVault.withdrawAssetPairToUser(shareEther);
     } catch (error: any) {
       console.log(error);
     }

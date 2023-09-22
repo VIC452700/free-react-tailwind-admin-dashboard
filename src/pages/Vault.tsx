@@ -16,7 +16,8 @@ declare let window: any;
 const Vault = () => {
   const [depositedAmount, setDepositedAmount] = useState('');
 
-  const vaultAddress = '0xe810399b60f1Fb94EfdF9826Cb9e378E44b85206'; 
+  // const vaultAddress = '0xe810399b60f1Fb94EfdF9826Cb9e378E44b85206';// origin no withdraw 
+  const vaultAddress = '0x4B3f9d86535FDe6f38f5C623D2b4dF5cE8989e41';
 
   const handleConnectClick = async () => {
     await connectMetaMask();
@@ -62,13 +63,13 @@ const Vault = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5">
+      {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5">
         <CardOne depositedAmount = {depositedAmount}/>
         <CardTwo />
         <CardThree />
         <CardFour />
         <CardFive />
-      </div>
+      </div> */}
       
       <div className='border-t mt-4'>
         <h1 className='mt-4 font-bold'>Overview</h1>

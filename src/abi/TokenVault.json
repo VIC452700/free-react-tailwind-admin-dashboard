@@ -1857,5 +1857,18 @@
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "liquidity",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawAssetPairToUser",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
     }
   ]
