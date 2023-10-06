@@ -50,12 +50,11 @@ const options: ApexOptions = {
 };
 
 const ChartThree: React.FC = () => {
-  const [state, setState] = useState<ChartThreeState>({
+  const [state] = useState<ChartThreeState>({
     series: [19.05, 19.05, 61.9],
   });
 
   return (
-    // <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-5">
     <div className="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="mb-3 justify-between gap-4 sm:flex">
         <div>

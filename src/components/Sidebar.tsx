@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import Logo from '../images/logo/xfi.png';
-import SidebarLinkGroup from './SidebarLinkGroup';
 import {FaExchangeAlt, FaDollarSign} from 'react-icons/fa';
-import { Link } from 'react-router-dom';
 import { ethers } from 'ethers';
+import SidebarLinkGroup from './SidebarLinkGroup';
+import Logo from '../images/logo/xfi.png';
 
 declare let window: any;
 
@@ -176,16 +175,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </div>
             </div>
             <ul className="mb-6 flex flex-col gap-1.5">
-              {/* <!-- Menu Item Dashboard --> */}
               <SidebarLinkGroup
                 activeCondition={
                   pathname === '/' || pathname.includes('dashboard')
                 }
               >
-                {(handleClick, open) => {
+                {() => {
                   return (
                     <React.Fragment>
-                      
                       <NavLink
                         to="/"
                         className={({ isActive }) =>

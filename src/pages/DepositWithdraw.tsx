@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ethers } from 'ethers';
-import Breadcrumb from '../components/Breadcrumb';
 import DepositGroup from './Deposit';
 import WithDraw from './Withdraw';
 import { Tab, initTE } from 'tw-elements';
@@ -11,6 +10,7 @@ import SpaceCredit from '../abi/SpaceCredit.json';
 import XXXToken from '../abi/XXXToken.json';
 import TokenVault from '../abi/TokenVault.json';
 import WETH from '../abi/WETH.json';
+import React from 'react';
 
 declare let window: any;
 
@@ -161,12 +161,12 @@ const DepositWithdraw = (props: any) => {
       const spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
       const wethToken = new ethers.Contract(wethAddress, WETH, signer);
 
-      // const spcEther = ethers.parseUnits(spcAmount, 'ether');
-      // const wethEther = ethers.parseUnits(wethAmount, 'ether');
+      const spcEther = ethers.parseUnits(spcAmount, 'ether');
+      const wethEther = ethers.parseUnits(wethAmount, 'ether');
       // Deposit Asset
-      // await spcToken.approve(vaultAddress, spcEther);
-      // await wethToken.approve(vaultAddress, wethEther);
-      // await tokenVault.depositAssetPair(spcEther, wethEther);
+      await spcToken.approve(vaultAddress, spcEther);
+      await wethToken.approve(vaultAddress, wethEther);
+      await tokenVault.depositAssetPair(spcEther, wethEther);
 
       // --------------------------------------------------------------------------------- SPC - WETH POOL
       // User -> Vault (tokenA, tokenB), Approve(Vault Address) -> Transfer
@@ -188,22 +188,22 @@ const DepositWithdraw = (props: any) => {
 
       // ---------------------------------------------------------------------------------- WETH - XXX POOL
       // User -> Vault (tokenA, tokenB), Approve(Vault Address) -> Transfer
-      const xxxToken = new ethers.Contract(xxxAddress, XXXToken, signer);
-      const amount1 = ethers.parseUnits('0.1', 'ether');
-      const amount2 = ethers.parseUnits('185.2', 'ether');
-      await wethToken.approve(vaultAddress, amount1);
-      await xxxToken.approve(vaultAddress, amount2);
-      await wethToken.transfer(vaultAddress, amount1);
-      await xxxToken.transfer(vaultAddress, amount2);
+      // const xxxToken = new ethers.Contract(xxxAddress, XXXToken, signer);
+      // const amount1 = ethers.parseUnits('0.1', 'ether');
+      // const amount2 = ethers.parseUnits('185.2', 'ether');
+      // await wethToken.approve(vaultAddress, amount1);
+      // await xxxToken.approve(vaultAddress, amount2);
+      // await wethToken.transfer(vaultAddress, amount1);
+      // await xxxToken.transfer(vaultAddress, amount2);
 
-      // Add liquidity to the pool
-      let liquidity = await tokenVault.addLiquidityWithERC20(
-        wethAddress,
-        xxxAddress,
-        amount1,
-        amount2
-      );
-      console.log('liquidity ', liquidity);
+      // // Add liquidity to the pool
+      // let liquidity = await tokenVault.addLiquidityWithERC20(
+      //   wethAddress,
+      //   xxxAddress,
+      //   amount1,
+      //   amount2
+      // );
+      // console.log('liquidity ', liquidity);
 
       // ------------------------------------------------------------------------------------ SPC - XXX POOL
       // User -> Vault (tokenA, tokenB), Approve(Vault Address) -> Transfer
@@ -220,7 +220,7 @@ const DepositWithdraw = (props: any) => {
       //   amount,
       //   amount
       // );
-      // console.log('liquidity ', liquidity);
+      // console.log('liquidity', liquidity);
     } catch (error: any) {
       console.log(error);
     }
@@ -252,6 +252,7 @@ const DepositWithdraw = (props: any) => {
 
       const shareEther = ethers.parseUnits(amountShare, 'ether');
       // await tokenVault.withdrawAssetPair(shareEther);
+      await tokenVault.approve(vaultAddress, shareEther);
       await tokenVault.withdrawAssetPairToUser(shareEther);
     } catch (error: any) {
       console.log(error);
@@ -284,7 +285,7 @@ const DepositWithdraw = (props: any) => {
 
   return (
     <>
-      <div className='w-full bg-white flex block m-auto h-[60vh] flex-row flex-wrap border-2 rounded-[12px] pl-0'>
+      <div className='w-full bg-white flex m-auto h-[60vh] flex-row flex-wrap border-2 rounded-[12px] pl-0'>
         <ul
           className="w-full mb-5 flex list-none flex-row flex-wrap border-b-0 pl-0"
           role="tablist"

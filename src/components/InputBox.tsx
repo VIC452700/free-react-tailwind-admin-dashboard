@@ -1,3 +1,4 @@
+import React from "react";
 import DropDown from "./DropDown";
 
 function InputBox(props: any) {
@@ -14,8 +15,7 @@ function InputBox(props: any) {
             onChange={props.onChange}
           />
           {props.isEmpty ? (
-            <p className="mt-2 text-sm text-red-600 mt-0">
-              
+            <p className="mt-2 text-sm text-red-600">  
               {props.name}
             </p>
           ) : (

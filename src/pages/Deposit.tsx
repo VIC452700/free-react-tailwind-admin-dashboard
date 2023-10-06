@@ -1,10 +1,10 @@
+import React from 'react';
 import Button from '../components/Button';
 import InputBoxLabel from '../components/InputBoxLabel';
 
 function DepositGroup(props: any) {
   return (
     <div className="sm:container sm:mx-auto sm:px-5 my-10 box-border">
-      {/* <div className="my-10 text-5xl text-black">Assets</div> */}
       <div className="box-border h-full w-full">
         <InputBoxLabel
           Token={'SPC'}

@@ -1,4 +1,6 @@
+import React from "react";
 import { MdToken } from "react-icons/md";
+
 const CardTwo = () => {
   return (
     <div className="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -13,7 +15,6 @@ const CardTwo = () => {
             1
           </h4>
         </div>
-
       </div>
     </div>
   );

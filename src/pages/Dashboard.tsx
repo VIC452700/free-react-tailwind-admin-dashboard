@@ -1,19 +1,18 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { useState } from 'react';
 import { ethers } from 'ethers';
 
-import CardFour from '../../components/CardFour.tsx';
-import CardOne from '../../components/CardOne.tsx';
-import CardThree from '../../components/CardThree.tsx';
-import CardTwo from '../../components/CardTwo.tsx';
-import ChartThree1 from '../../components/ChartThree1.tsx';
-import ChartThree2 from '../../components/ChartThree2.tsx';
-import ChartThree3 from '../../components/ChartThree3.tsx';
-import Earn from '../Earn.tsx';
-
-import TokenVault from '../../abi/TokenVault.json';
+import CardOne from '../components/CardOne.js';
+import CardTwo from '../components/CardTwo.js';
+import CardThree from '../components/CardThree.js';
+import CardFour from '../components/CardFour.js';
+import ChartThree1 from '../components/ChartThree1.js';
+import ChartThree2 from '../components/ChartThree2.js';
+import ChartThree3 from '../components/ChartThree3.js';
+import Earn from './Earn.js';
+import TokenVault from '../abi/TokenVault.json';
 
 declare let window: any;
-
 
 const ECommerce = (props: any) => {
   const [depositedAmount, setDepositedAmount] = useState('');
@@ -118,7 +117,7 @@ const ECommerce = (props: any) => {
       </div>
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
         <div className="col-span-12 xl:col-span-12">
-          <Earn depositedAmount = {depositedAmount}/>
+          <Earn />
         </div>
       </div>
     </>

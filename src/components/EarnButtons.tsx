@@ -1,6 +1,6 @@
+import React from "react";
 import { useState } from "react";
 import { FaEthereum } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 
 interface TableRow {
   id: number;
@@ -14,10 +14,6 @@ interface TableRow {
 
 const EarnButtons = () => {
   const [rows, setRows] = useState<TableRow[]>([]);
-  const navigate = useNavigate();
-  const handleRowClick = (row: TableRow) => {
-    navigate('/vault');
-  }
   const [isClick, setIsClick] = useState(false);
 
   const buttonClasses = `text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 ${
@@ -27,7 +23,6 @@ const EarnButtons = () => {
   const handleButtonClick = (buttonRows: TableRow[]) => {
     setRows((prevRows) => {
       setIsClick((prevIsClick) => !prevIsClick);
-
       const isDisplayed = buttonRows.every((row) =>
         prevRows.some((prevRows) => prevRows.id === row.id)
       );
@@ -94,7 +89,6 @@ const EarnButtons = () => {
             }  className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 ml-auto">
           Clear All
         </button>
-
       </div>
     </>
   );

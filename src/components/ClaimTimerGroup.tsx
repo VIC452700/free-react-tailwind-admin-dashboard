@@ -180,8 +180,6 @@ function ClaimTimerGroup(props: any) {
           </div>
         )}
 
-          
-          
         <div className="flex flex-row px-7 pt-3 mt-5 justify-center items-center">
           { !toggleChecked && <Button text={'Claim'} buttonClicked={props.handleClaimClick}/>}
         </div>

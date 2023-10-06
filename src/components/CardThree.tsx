@@ -1,3 +1,4 @@
+import React from "react";
 import { BiSolidData } from "react-icons/bi";
 
 const CardThree = () => {
@@ -13,8 +14,6 @@ const CardThree = () => {
             $0.01
           </h4>
         </div>
-
-        
       </div>
     </div>
   );
