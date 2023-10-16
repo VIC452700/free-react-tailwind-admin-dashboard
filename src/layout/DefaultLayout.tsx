@@ -4,15 +4,12 @@ import { NavLink, Outlet } from 'react-router-dom';
 import {FaExchangeAlt, FaDollarSign} from 'react-icons/fa';
 
 import { WagmiConfig, createConfig, configureChains } from 'wagmi'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
-import { InjectedConnector } from 'wagmi/connectors/injected'
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import { sepolia, arbitrumGoerli, bscTestnet, optimismGoerli, polygonMumbai } from 'wagmi/chains';
-import { RainbowKitProvider, ConnectButton, useAccountModal, useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
+import "@rainbow-me/rainbowkit/styles.css";
 
+import { ConnectWalletButton } from '../components/ConnectWalletButton';
 import ConnectWalletModal from '../components/ConnectWalletModal';
 import SwitchNetworkModal from '../components/SwitchNetworkModal';
 import Logo from '../images/logo/xfi.png';
@@ -75,37 +72,18 @@ const DefaultLayout = () => {
     SetIsVisibleNetworkModal(!isVisibleNetworkModal);
   };
 
-  const alchemyId: string = "Z66PxY86kCkFslToB82DiSM531OnIyHS"; // const alchemyId: string = process.env.ALCHEMY_ID || "";
-  const projectId: string = "177249e407d373ae3ed64ace1806e582"; // const projectId: string = process.env.WALLETCONNECT_PROJECT_ID || "";
+  const projectId: string = "177249e407d373ae3ed64ace1806e582";
 
-  const { chains, publicClient, webSocketPublicClient } = configureChains([sepolia, bscTestnet, polygonMumbai, arbitrumGoerli, optimismGoerli], [
-    alchemyProvider({ apiKey: alchemyId }),
-    publicProvider(),
-  ])
+  const { chains, publicClient, webSocketPublicClient } = configureChains(
+    [sepolia, bscTestnet, polygonMumbai, arbitrumGoerli, optimismGoerli],
+    [publicProvider()]
+  );
 
-  const connectors = [
-    new MetaMaskConnector({
-      chains,
-    }),
-    new CoinbaseWalletConnector({
-      chains,
-      options: {appName: 'wagmi'},
-    }),
-    new WalletConnectConnector({
-      chains,
-      options: {
-        projectId,
-        showQrModal: true,
-      },
-    }),
-    new InjectedConnector({
-      chains,
-      options: {
-        name: 'Injected',
-        shimDisconnect: true,
-      }
-    }),
-  ];
+  const { connectors } = getDefaultWallets({
+    appName: "My RainbowKit App",
+    projectId: projectId,
+    chains,
+  });
 
   const config = createConfig({
     autoConnect: true,
@@ -154,18 +132,19 @@ const DefaultLayout = () => {
               <div>
                 <div className="mb-4 rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
                   <div className="p-4 md:p-6 ml:p-9">
-                    <div className="flex flex-wrap gap-5 xl:gap-7.5"> 
-                    <WagmiConfig config={config}>
-                    <RainbowKitProvider chains={chains} modalSize="compact">
+                    <div className="flex flex-wrap gap-5 xl:gap-7.5">
+                      <WagmiConfig config={config}>
+                        <RainbowKitProvider chains={chains}>
+                          <ConnectWalletButton />
+                        </RainbowKitProvider>
+                      </WagmiConfig> 
+
                       <button
                         onClick={handleVisibleWalletModal}
                         className="inline-flex items-center justify-center gap-2.5 rounded-full border border-primary py-1 px-10 text-center text-primary hover:bg-opacity-90 lg:px-8 xl:px-10"
                       >
                         {connectWallet}
                       </button>
-                      </RainbowKitProvider>
-                      </WagmiConfig> 
-                      
                       <button
                         onClick={handleVisibleNetworkModal}
                         className="inline-flex items-center justify-center gap-2.5 rounded-full border border-primary py-1 px-10 text-center text-primary hover:bg-opacity-90 lg:px-8 xl:px-10"
