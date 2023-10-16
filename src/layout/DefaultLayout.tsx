@@ -10,17 +10,10 @@ import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { ConnectWalletButton } from '../components/ConnectWalletButton';
-import ConnectWalletModal from '../components/ConnectWalletModal';
-import SwitchNetworkModal from '../components/SwitchNetworkModal';
 import Logo from '../images/logo/xfi.png';
 
 const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isVisibleWalletModal, setIsVisibleWalletModal] = useState(false);
-  const [connectWallet, setConnectWallet] = useState('Connect Wallet');
-  const [isVisibleNetworkModal, SetIsVisibleNetworkModal] = useState(false);
-  const [connectNetwork, setConnectNetwork] = useState('Switch Network');
-  const [connectorId, setConnectorId] = useState(0);
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
   
@@ -33,44 +26,6 @@ const DefaultLayout = () => {
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
   });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isVisibleWalletModal && !(event.target as HTMLElement).closest('.modal')) {
-        setIsVisibleWalletModal(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => { document.removeEventListener('mousedown', handleClickOutside); };
-  }, [isVisibleWalletModal]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isVisibleNetworkModal && !(event.target as HTMLElement).closest('.modal')) {
-        SetIsVisibleNetworkModal(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => { document.removeEventListener('mousedown', handleClickOutside); };
-  }, [isVisibleNetworkModal]);
-
-  const handleVisibleWalletModal = () => {
-    setIsVisibleWalletModal(!isVisibleWalletModal);
-  }
-
-  const handleConnectWallet = (walletAddress: string) => {
-    setConnectWallet(walletAddress);
-    setIsVisibleWalletModal(!isVisibleWalletModal);
-  };
-
-  const handleVisibleNetworkModal = () => {
-    SetIsVisibleNetworkModal(!isVisibleNetworkModal);
-  }
-
-  const handleConnectNetwork = (networkName: string) => {
-    setConnectNetwork(networkName);
-    SetIsVisibleNetworkModal(!isVisibleNetworkModal);
-  };
 
   const projectId: string = "177249e407d373ae3ed64ace1806e582";
 
@@ -137,20 +92,7 @@ const DefaultLayout = () => {
                         <RainbowKitProvider chains={chains}>
                           <ConnectWalletButton />
                         </RainbowKitProvider>
-                      </WagmiConfig> 
-
-                      <button
-                        onClick={handleVisibleWalletModal}
-                        className="inline-flex items-center justify-center gap-2.5 rounded-full border border-primary py-1 px-10 text-center text-primary hover:bg-opacity-90 lg:px-8 xl:px-10"
-                      >
-                        {connectWallet}
-                      </button>
-                      <button
-                        onClick={handleVisibleNetworkModal}
-                        className="inline-flex items-center justify-center gap-2.5 rounded-full border border-primary py-1 px-10 text-center text-primary hover:bg-opacity-90 lg:px-8 xl:px-10"
-                      >
-                        {connectNetwork}
-                      </button>
+                      </WagmiConfig>
                     </div>
                   </div>
                 </div>
@@ -211,28 +153,10 @@ const DefaultLayout = () => {
             </nav>
           </div>
         </aside>
-
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <main>       
             <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
               <Outlet />
-              {isVisibleWalletModal &&
-                (
-                  <WagmiConfig config={config}>
-                    {/* <RainbowKitProvider chains={chains} modalSize="compact"> */}
-                      <ConnectWalletModal handleConnectWallet={handleConnectWallet} setConnectNetwork={setConnectNetwork} setConnectorId={setConnectorId} />
-                    {/* </RainbowKitProvider> */}
-                    
-                  </WagmiConfig>
-                )
-              }
-              {isVisibleNetworkModal &&
-                (
-                  <WagmiConfig config={config}>
-                    <SwitchNetworkModal handleConnectNetwork={handleConnectNetwork} connectorId={connectorId} />
-                  </WagmiConfig>
-                )
-              }
             </div>
           </main>
         </div>
