@@ -3,24 +3,19 @@ import { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import {FaExchangeAlt, FaDollarSign} from 'react-icons/fa';
 
-import ConnectWalletModal from '../components/ConnectWalletModal';
-import Logo from '../images/logo/xfi.png';
-
 import { WagmiConfig, createConfig, configureChains } from 'wagmi'
-
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
- 
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { InjectedConnector } from 'wagmi/connectors/injected'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-
-import SwitchNetworkModal from '../components/SwitchNetworkModal';
 import { sepolia, arbitrumGoerli, bscTestnet, optimismGoerli, polygonMumbai } from 'wagmi/chains';
-import CustomConnectButton from '../components/CustomConnectButton';
-import { ConnectButton, RainbowKitProvider, useAccountModal, useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, ConnectButton, useAccountModal, useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
 
+import ConnectWalletModal from '../components/ConnectWalletModal';
+import SwitchNetworkModal from '../components/SwitchNetworkModal';
+import Logo from '../images/logo/xfi.png';
 
 const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -118,10 +113,6 @@ const DefaultLayout = () => {
     publicClient,
     webSocketPublicClient,
   })
-
-  const { openConnectModal } = useConnectModal();
-  const { openAccountModal } = useAccountModal();
-  const { openChainModal } = useChainModal();
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
