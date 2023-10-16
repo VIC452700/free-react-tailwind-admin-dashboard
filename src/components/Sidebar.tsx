@@ -4,6 +4,7 @@ import {FaExchangeAlt, FaDollarSign} from 'react-icons/fa';
 import { ethers } from 'ethers';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../images/logo/xfi.png';
+import ConnectWalletModal from './ConnectWalletModal';
 
 declare let window: any;
 
@@ -17,18 +18,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const [netId, setNetId] = useState('');
   
   const ethMainnetId = '0x1'; // Ethereum 1
-  const bnbMainnetId = '0x38'; // BSC 56
-  const polygonMainnetId = '0x89'; // Polygon 137
-  const arbitrumMainnetId = '0xa4b1'; //Arbitrum 42161
-  const fantomMainnetId = '0xfa'; // Fantom 250
-  const optimismMainnetId = '0x12c'; // Optimism on GC 300 (0x12c)
+  // const bnbMainnetId = '0x38'; // BSC 56
+  // const polygonMainnetId = '0x89'; // Polygon 137
+  // const arbitrumMainnetId = '0xa4b1'; //Arbitrum 42161
+  // const fantomMainnetId = '0xfa'; // Fantom 250
+  // const optimismMainnetId = '0x12c'; // Optimism on GC 300 (0x12c)
 
   const ethSepoliaId = '0xaa36a7'; // Sepolia 11155111
-  const bnbTestnetId = '0x61'; // BSC Testnet 97
-  const polygonTestnetId = '0x13881'; // Polygon Mumbai Testnet 80001 (0x13881)
-  const arbitrumTestnetId = '0x66eed'; //Arbitrum Goerli 421613 (0x66eed) ------------ add metamask network
-  const fantomTestnetId = '0xfa2'; // Fantom Testnet 4002  ------------ add metamask network
-  const optimismTestnetId = '0x45'; // Optimism Kovan 69 (0x45) ------------ add metamask network
+  // const bnbTestnetId = '0x61'; // BSC Testnet 97
+  // const polygonTestnetId = '0x13881'; // Polygon Mumbai Testnet 80001 (0x13881)
+  // const arbitrumTestnetId = '0x66eed'; //Arbitrum Goerli 421613 (0x66eed) ------------ add metamask network
+  // const fantomTestnetId = '0xfa2'; // Fantom Testnet 4002  ------------ add metamask network
+  // const optimismTestnetId = '0x45'; // Optimism Kovan 69 (0x45) ------------ add metamask network
 
   const location = useLocation();
   const { pathname } = location;
@@ -153,12 +154,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           </svg>
         </button>
       </div>
+      
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           <div>
             <div className="mb-4 rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
               <div className="p-4 md:p-6 ml:p-9">
-                <div className="flex flex-wrap gap-5 xl:gap-7.5">                
+                <div className="flex flex-wrap gap-5 xl:gap-7.5">  
                   <button
                     onClick={handleConnectClick}
                     className="inline-flex items-center justify-center gap-2.5 rounded-full border border-primary py-1 px-10 text-center text-primary hover:bg-opacity-90 lg:px-8 xl:px-10"
@@ -174,6 +176,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </div>
               </div>
             </div>
+            
             <ul className="mb-6 flex flex-col gap-1.5">
               <SidebarLinkGroup
                 activeCondition={
@@ -247,6 +250,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </ul>
           </div>
         </nav>
+        
       </div>
     </aside>
   );

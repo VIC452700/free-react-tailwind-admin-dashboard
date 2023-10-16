@@ -26,5 +26,8 @@ export default defineConfig({
     },
     cors: false
   },
+  build: {
+    target: 'es2020'
+  },
   plugins: [react()],
 });
