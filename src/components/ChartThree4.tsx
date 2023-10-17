@@ -1,6 +1,6 @@
-import { ApexOptions } from 'apexcharts';
 import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import { ApexOptions } from 'apexcharts';
 import InputLabel from './InputLabel';
 
 interface ChartThreeState {
@@ -63,7 +63,6 @@ const ChartThree: React.FC = () => {
           </h5>
         </div>
       </div>
-
       <div className="mb-2">
         <div id="chartThree" className="mx-auto flex justify-center">
           <ReactApexChart

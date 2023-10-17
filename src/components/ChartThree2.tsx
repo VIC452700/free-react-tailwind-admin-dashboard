@@ -1,6 +1,6 @@
-import { ApexOptions } from 'apexcharts';
 import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import { ApexOptions } from 'apexcharts';
 
 interface ChartThreeState {
   series: number[];

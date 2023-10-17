@@ -14,7 +14,6 @@ function InputBoxLabel(props: any) {
         />
         {props.isEmpty ? (
           <p className="mt-2 text-sm text-red-600">
-            
             {props.name}
           </p>
         ) : (

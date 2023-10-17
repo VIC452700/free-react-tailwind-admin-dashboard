@@ -1,9 +1,10 @@
 import React from 'react';
 import { useState } from 'react';
-import { ethers } from 'ethers';
-import { getEthersProvider } from '../utils/getEthersProvider.js';
-import { getEthersSigner } from '../utils/getEthersSigner.js';
+import { getWalletClient } from '@wagmi/core'
+import { BrowserProvider, Eip1193Provider, JsonRpcSigner, ethers } from 'ethers';
 
+import Earn from './Earn.js';
+import TokenVault from '../abi/TokenVault.json';
 import CardOne from '../components/CardOne.js';
 import CardTwo from '../components/CardTwo.js';
 import CardThree from '../components/CardThree.js';
@@ -11,48 +12,42 @@ import CardFour from '../components/CardFour.js';
 import ChartThree1 from '../components/ChartThree1.js';
 import ChartThree2 from '../components/ChartThree2.js';
 import ChartThree3 from '../components/ChartThree3.js';
-import TokenVault from '../abi/TokenVault.json';
-import Earn from './Earn.js';
+import { getEthersProvider } from '../utils/getEthersProvider.js';
 
-declare let window: any;
+const Dashboard = () => {
+  const [depositedAmount, setDepositedAmount] = useState(''); 
 
-const Dashboard = (props: any) => {
-  const [depositedAmount, setDepositedAmount] = useState('');
-
-  // const vaultAddress = '0xe810399b60f1Fb94EfdF9826Cb9e378E44b85206'; // origin no withdraw
-  const vaultAddress = '0x4B3f9d86535FDe6f38f5C623D2b4dF5cE8989e41'; 
-  // const ethSepoliaId = '0xaa36a7'; // Sepolia 11155111
-  // const ethMainnetId = '0x1'; // Ethereum 1
-  // if (id === ethSepoliaId) {
-  //  handleConnectClick();
-  // } 
-  // else {
-  //   alert("Please connect sepolia testnet.");
-  //   return;
-  // }
-
-   const handleConnectClick = async () => {
-    await connectMetaMask();
+  const handleConnectClick = async () => {
+    await connectWallet();
   };
 
   handleConnectClick();
 
-  async function connectMetaMask() {
-    // const provider = new ethers.AlchemyProvider('https://eth-sepolia.g.alchemy.com/v2/Z66PxY86kCkFslToB82DiSM531OnIyHS');
-    // const provider = getEthersProvider();
-    // console.log("-------------> chainID", (await provider.getNetwork()).chainId);
-    // const signer = getEthersSigner();
+  async function connectWallet() {
+    const _provider = getEthersProvider();
+    const chainId: number = Number((await _provider.getNetwork()).chainId);
     
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();  
-      
-    const accountAddress = await signer.getAddress();
+    const walletClient = await getWalletClient({ chainId });
+    const network = {
+      chainId: walletClient?.chain.id,
+      name: walletClient?.chain.name,
+      ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+    }
+    const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+    const accountAddress = walletClient?.account.address;
+    console.log("-------------> chainID", chainId);
+    console.log("-------------> account", accountAddress);
+
+    const provider = new BrowserProvider(transport, network)
+    const signer = new JsonRpcSigner(provider, accountAddress as string);
+    const vaultAddress = '0x4B3f9d86535FDe6f38f5C623D2b4dF5cE8989e41';
     const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
 
     let amountOfLP = await tokenVault.balanceOf(accountAddress);
     const depositedAmount = ethers.formatEther(amountOfLP);
     const formattedAmount = parseFloat(depositedAmount).toFixed(3);
     setDepositedAmount(formattedAmount);
+    console.log("------------------> LP token amount", amountOfLP);
   }
 
   return (

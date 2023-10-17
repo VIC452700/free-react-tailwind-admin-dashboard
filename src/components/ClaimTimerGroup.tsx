@@ -10,19 +10,15 @@ function ClaimTimerGroup(props: any) {
   const [showModal, setShowModal] = useState(false);
   const [showModalForUser, setShowModalForUser] = useState(false);
 
-  // Set timer
   useEffect(() => {
       const interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
       }, 1000);
-
       if (timer === 0) {
         clearInterval(interval);
         setTimer(severTime); // 604800 seconds = 7 days
       }
-      return () => {
-      clearInterval(interval);
-    };
+      return () => { clearInterval(interval); };
   }, [timer]);
 
   const handleToggleChange = (event: any) => {
@@ -33,27 +29,9 @@ function ClaimTimerGroup(props: any) {
   const handleYesClick = () => {
     setShowModal(false);
     setToggleChecked(true);
-
     setShowModalForUser(true);
     handle();
   };
-
-  const handle=async()=> {
-     try {
-      const res = await Axios.get("https://defivaultservice.onrender.com/api");
-      const data = res.data;
-      
-      console.log(res.data); //{vaultTime: 518296, userTime: 604696}
-      console.log(data["vaultTime"]);
-      console.log(data["userTime"]);
-
-      setServerTime(data["userTime"]);
-      setTimer(data["userTime"]);
-
-     } catch (error) {
-       console.error(error);
-     }
-   }
 
   const handleNoClick = () => {
     setShowModal(false);
@@ -69,6 +47,17 @@ function ClaimTimerGroup(props: any) {
     setShowModalForUser(true);
     setToggleChecked(true);
   };
+
+  const handle = async () => {
+     try {
+      const res = await Axios.get("https://defivaultservice.onrender.com/api");
+      const data = res.data;
+      setServerTime(data["userTime"]);
+      setTimer(data["userTime"]);
+     } catch (error) {
+       console.error(error);
+     }
+  }
 
   return (
 
@@ -94,7 +83,6 @@ function ClaimTimerGroup(props: any) {
             </div>
         </div>
         )}
-
         <label className="relative inline-flex items-center cursor-pointer mt-5">
           <input
             type="checkbox"
@@ -109,7 +97,6 @@ function ClaimTimerGroup(props: any) {
           </div>
           <span className="ml-5 text-3xl font-medium text-red-900 dark:text-red-300">Auto Claim</span>
         </label>
-
         {toggleChecked && showModal &&(
           <div id="popup-modal" className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-opacity-75 bg-gray-900">
             <div className="relative bg-white rounded-lg shadow-lg p-6 border-primary">

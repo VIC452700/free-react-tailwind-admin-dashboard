@@ -4,7 +4,6 @@ import {FaExchangeAlt, FaDollarSign} from 'react-icons/fa';
 import { ethers } from 'ethers';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../images/logo/xfi.png';
-import ConnectWalletModal from './ConnectWalletModal';
 
 declare let window: any;
 
@@ -250,7 +249,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </ul>
           </div>
         </nav>
-        
       </div>
     </aside>
   );
