@@ -48,12 +48,12 @@ function Swap(props: any) {
   let id = window.ethereum.chainId;
   const ethSepoliaId = '0xaa36a7'; // Sepolia 11155111
   const ethMainnetId = '0x1'; // Ethereum 1
-  if (id === ethSepoliaId) {
+  // if (id === ethSepoliaId) {
     handleConnectClick();
-  } else {
-    // alert("Please connect sepolia testnet.");
-    return;
-  }
+  // } else {
+  //   // alert("Please connect sepolia testnet.");
+  //   return;
+  // }
 
   async function connectMetaMask() {
     //const provider = new ethers.AlchemyProvider('https://eth-sepolia.g.alchemy.com/v2/Z66PxY86kCkFslToB82DiSM531OnIyHS');

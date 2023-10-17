@@ -37,7 +37,7 @@ const Vault = () => {
     const accountAddress = await signer.getAddress();
 
     let id = await window.ethereum.chainId;
-    if (id === ethMainnetId) return;
+    // if (id === ethMainnetId) return;
     
     const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
 
