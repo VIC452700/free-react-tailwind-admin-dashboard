@@ -83,7 +83,7 @@ const DepositWithdraw = (props: any) => {
   if (id === ethSepoliaId) {
     handleConnectClick();
   } else {
-    alert("Please connect sepolia testnet.");
+    // alert("Please connect sepolia testnet.");
     return;
   }
 
