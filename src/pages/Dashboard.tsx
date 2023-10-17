@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useState } from 'react';
+import { ethers } from 'ethers';
 import { getEthersProvider } from '../utils/getEthersProvider.js';
 import { getEthersSigner } from '../utils/getEthersSigner.js';
 
@@ -10,9 +11,8 @@ import CardFour from '../components/CardFour.js';
 import ChartThree1 from '../components/ChartThree1.js';
 import ChartThree2 from '../components/ChartThree2.js';
 import ChartThree3 from '../components/ChartThree3.js';
-import Earn from './Earn.js';
 import TokenVault from '../abi/TokenVault.json';
-import { ethers } from 'ethers';
+import Earn from './Earn.js';
 
 declare let window: any;
 
@@ -44,7 +44,8 @@ const Dashboard = (props: any) => {
     // const signer = getEthersSigner();
     
     const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();    
+    const signer = await provider.getSigner();  
+      
     const accountAddress = await signer.getAddress();
     const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
 

@@ -2,7 +2,7 @@ import { lazy } from 'react';
 
 const Vault = lazy(() => import('../pages/Vault'));
 const Swap = lazy(() => import('../pages/Swap'));
-const Earn = lazy(() => import('../pages/Earn'))
+const Earn = lazy(() => import('../pages/Earn'));
 
 const coreRoutes = [
   {

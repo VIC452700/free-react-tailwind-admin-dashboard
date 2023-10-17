@@ -14,21 +14,21 @@ import WETH from '../abi/WETH.json';
 declare let window: any;
 
 function Swap(props: any) {
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [isAssetEmpty, setIsAssetEmpty] = useState<boolean | false>(false);
-  const [isShareEmpty, setIsShareEmpty] = useState<boolean | false>(false);
-  const [vaultName, setVaultName] = useState('');
-  const [vaultSymbol, setVaultSymbol] = useState('');
-  const [account, setAccount] = useState('');
-  const [balance, setBalance] = useState('');
-  const [token0, setToken0] = useState('');
-  const [token1, setToken1] = useState('');
-  const [tokenXXX, setTokenXXX] = useState('');
-  const [lpToken, setLPToken] = useState('');
-  const [inputs, setInputs] = useState({
-    Asset: '',
-    Share: '',
-  });
+  // const [isConnected, setIsConnected] = useState<boolean>(false);
+  // const [isAssetEmpty, setIsAssetEmpty] = useState<boolean | false>(false);
+  // const [isShareEmpty, setIsShareEmpty] = useState<boolean | false>(false);
+  // const [vaultName, setVaultName] = useState('');
+  // const [vaultSymbol, setVaultSymbol] = useState('');
+  // const [account, setAccount] = useState('');
+  // const [balance, setBalance] = useState('');
+  // const [token0, setToken0] = useState('');
+  // const [token1, setToken1] = useState('');
+  // const [tokenXXX, setTokenXXX] = useState('');
+  // const [lpToken, setLPToken] = useState('');
+  // const [inputs, setInputs] = useState({
+  //   Asset: '',
+  //   Share: '',
+  // });
 
   const [currentValue0, setCurrentValue0] = useState('0');
   const [currentValue1, setCurrentValue1] = useState('0');
@@ -45,9 +45,9 @@ function Swap(props: any) {
     await connectMetaMask();
   };
 
-  let id = window.ethereum.chainId;
-  const ethSepoliaId = '0xaa36a7'; // Sepolia 11155111
-  const ethMainnetId = '0x1'; // Ethereum 1
+  // let id = window.ethereum.chainId;
+  // const ethSepoliaId = '0xaa36a7'; // Sepolia 11155111
+  // const ethMainnetId = '0x1'; // Ethereum 1
   // if (id === ethSepoliaId) {
     handleConnectClick();
   // } else {
@@ -61,10 +61,10 @@ function Swap(props: any) {
     const signer = await provider.getSigner();    
 
     const accountAddress = await signer.getAddress();
-    setAccount(accountAddress);
+    // setAccount(accountAddress);
 
-    let id = await window.ethereum.chainId;
-    if (id === ethMainnetId) return;
+    // let id = await window.ethereum.chainId;
+    // if (id === ethMainnetId) return;
     
     const spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
     const wethToken = new ethers.Contract(wethAddress, WETH, signer);
@@ -73,13 +73,13 @@ function Swap(props: any) {
 
     let vaultName = await tokenVault.getVaultName();
     let vaultSymbol = await tokenVault.getVaultSymbol();
-    setVaultName(vaultName);
-    setVaultSymbol(vaultSymbol);
+    // setVaultName(vaultName);
+    // setVaultSymbol(vaultSymbol);
 
     // Get balance of ETH
     const balanceWei = await provider.getBalance(accountAddress);
     const balanceEth = ethers.formatEther(balanceWei);
-    setBalance(balanceEth);
+    // setBalance(balanceEth);
 
     // Get balance of SPC, WETH token
     let spcAmountWei = await spcToken.balanceOf(accountAddress);
@@ -89,21 +89,21 @@ function Swap(props: any) {
     let xxxAmountWei = await xxxToken.balanceOf(accountAddress);
     let xxxEth = ethers.formatEther(xxxAmountWei);
 
-    setToken0(spcEth);
-    setToken1(wethEth);
-    setTokenXXX(xxxEth)
+    // setToken0(spcEth);
+    // setToken1(wethEth);
+    // setTokenXXX(xxxEth)
 
     let lpAmountWei = await tokenVault.balanceOf(accountAddress);
     let lpEth = ethers.formatEther(lpAmountWei);
-    setLPToken(lpEth);
+    // setLPToken(lpEth);
 
     // get several factors
-    let totalVauleLocked = await tokenVault.getTVL();
-    let token0Locked = await tokenVault.getLockedAmountOfToken0();
-    let token1Locked = await tokenVault.getLockedAmountOfToken1();
-    let pairAddress = await tokenVault.getPairAddress(spcAddress, wethAddress);
-    let pairAddress1 = await tokenVault.getPairAddress(spcAddress, xxxAddress);
-    let pairAddress2 = await tokenVault.getPairAddress(xxxAddress, wethAddress);
+    // let totalVauleLocked = await tokenVault.getTVL();
+    // let token0Locked = await tokenVault.getLockedAmountOfToken0();
+    // let token1Locked = await tokenVault.getLockedAmountOfToken1();
+    // let pairAddress = await tokenVault.getPairAddress(spcAddress, wethAddress);
+    // let pairAddress1 = await tokenVault.getPairAddress(spcAddress, xxxAddress);
+    // let pairAddress2 = await tokenVault.getPairAddress(xxxAddress, wethAddress);
     // console.log("totolVaule Locked amount ---", totalVauleLocked);
     // console.log("token0 value locked amount ---", token0Locked);
     // console.log("token1 value locked amount ---", token1Locked);
