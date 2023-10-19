@@ -35,8 +35,8 @@ const Dashboard = () => {
     }
     const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
     const accountAddress = walletClient?.account.address;
-    console.log("-------------> chainID", chainId);
-    console.log("-------------> account", accountAddress);
+    // console.log("-------------> chainID", chainId);
+    // console.log("-------------> account", accountAddress);
 
     const provider = new BrowserProvider(transport, network)
     const signer = new JsonRpcSigner(provider, accountAddress as string);
@@ -47,7 +47,7 @@ const Dashboard = () => {
     const depositedAmount = ethers.formatEther(amountOfLP);
     const formattedAmount = parseFloat(depositedAmount).toFixed(3);
     setDepositedAmount(formattedAmount);
-    console.log("------------------> LP token amount", amountOfLP);
+    // console.log("------------------> LP token amount", amountOfLP);
   }
 
   return (
