@@ -12,7 +12,7 @@ interface InputBoxProps {
 
 const InputBox: React.FC<InputBoxProps> = ({ name, value, onChange, options, balance, handleCurrentValueChange }) => {
   return (
-    <div className="grid grid-cols-3 gap-4 mt-15"> 
+    <div className="grid grid-cols-3 gap-4 mt-12"> 
       <div className="col-span-2"> 
         <div className="mx-auto"> 
           <input 

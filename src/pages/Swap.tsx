@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { getWalletClient } from '@wagmi/core'
-import { BrowserProvider, Eip1193Provider, JsonRpcSigner, ethers } from 'ethers';
+import { BrowserProvider, Eip1193Provider, FallbackProvider, JsonRpcProvider, JsonRpcSigner, ethers } from 'ethers';
 import { Tab, initTE } from 'tw-elements';
 
 import WETH from '../abi/WETH.json';
@@ -13,13 +13,21 @@ import InputBox from '../components/InputBox.js';
 import ToastWarning from '../components/toast/ToastWarning.js';
 import ToastSuccess from '../components/toast/ToastSuccess.js';
 import ToastDanger from '../components/toast/ToastDanger.js';
+import Spinner from '../components/Spinner.js';
+import SpinnerButton from '../components/SpinnerButton.js';
 // import Token from '../components/Token.js';
-
 initTE({ Tab });
 
+interface TokenInfo {
+  id: string;
+  address: string;
+  contract: ethers.Contract
+}
+
 function Swap() {
-  // const [tokenA, setTokenA] = useState<Token>({} as Token);
-  // const [tokenB, setTokenB] = useState<Token>({} as Token);
+  const [spcInfo, setSPCInfo] = useState<TokenInfo>({} as TokenInfo);
+  const [wethInfo, setWETHInfo] = useState<TokenInfo>({} as TokenInfo);
+  const [xxxInfo, setXXXInfo] = useState<TokenInfo>({} as TokenInfo);
   const [tokenA, setTokenA] = useState('0');
   const [tokenB, setTokenB] = useState('0');
   const [balanceA, setBalanceA] = useState("0");
@@ -27,23 +35,22 @@ function Swap() {
   const [inputA, setInputA] = useState("0");
   const [inputB, setInputB] = useState("0");
 
+  const [isSwap, setIsSwap] = useState(true);
+  const [isSwapping, setIsSwapping] = useState(false);
   const [isVisibleTokenA, setIsVisibleTokenA] = useState(false);
   const [isVisibleTokenB, setIsVisibleTokenB] = useState(false);
-  const [isSwap, setIsSwap] = useState(true);
+  
 
   const [isToastWarningVisible, setIsToastWarningVisible] = useState(false);
   const [isToastDangerVisible, setIsToastDangerVisible] = useState(false);
   const [isToastSuccessVisible, setIsToastSuccessVisible] = useState(false);
-  
-  const options = ['SPC', 'WETH', 'XXX'];
 
+  const options = ['SPC', 'WETH', 'XXX'];
+  let accountAddress: any;
   const wethAddress = '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14';
   const spcAddress = '0xe2B0E50603Cd62569A94125628D796ad21339299';
   const xxxAddress = '0xe11B03C04e87430F8EAd92b245625c88c176C044';
   const vaultAddress = '0x4B3f9d86535FDe6f38f5C623D2b4dF5cE8989e41';
-
-  let accountAddress, provider, signer: JsonRpcSigner;
-  let spcToken: ethers.Contract, wethToken: ethers.Contract, xxxToken: ethers.Contract, tokenVault: ethers.Contract;
 
   const connectWallet = async () => {
     const _provider = getEthersProvider();
@@ -57,16 +64,17 @@ function Swap() {
     }
     const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
     accountAddress = walletClient?.account.address;
-    // let id = await window.ethereum.chainId;
-    // if (id === ethMainnetId) return;
-
-    provider = new BrowserProvider(transport, network)
-    signer = new JsonRpcSigner(provider, accountAddress as string);
+  
+    const provider = new BrowserProvider(transport, network)
+    const signer = new JsonRpcSigner(provider, accountAddress as string);
     
-    tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
-    spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
-    wethToken = new ethers.Contract(wethAddress, WETH, signer);
-    xxxToken = new ethers.Contract(xxxAddress, XXXToken, signer);
+    const spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
+    const wethToken = new ethers.Contract(wethAddress, WETH, signer);
+    const xxxToken = new ethers.Contract(xxxAddress, XXXToken, signer);
+
+    setSPCInfo({ id: '0', address: spcAddress, contract: spcToken});
+    setWETHInfo({ id: '1', address: wethAddress, contract: wethToken});
+    setXXXInfo({ id: '2', address: xxxAddress, contract: xxxToken});
 
     const spcAmount = await spcToken.balanceOf(accountAddress);
     const wethAmount = await wethToken.balanceOf(accountAddress);
@@ -101,6 +109,30 @@ function Swap() {
     }
   }
 
+  connectWallet();
+
+  const getTokenInfoWithId = (tokenId: string) => {
+    switch (tokenId) {
+      case '0':
+        return spcInfo;
+      case '1':
+        return wethInfo;
+      case '2':
+        return xxxInfo;
+    }
+  }
+
+  const getTokenInfoWithAddress = (tokenAddress: string) => {
+      switch (tokenAddress) {
+        case spcAddress:
+          return spcInfo;
+        case wethAddress:
+          return wethInfo;
+        case xxxAddress:
+          return xxxInfo;
+      }
+  }
+
   const handleCurrentValue0Change = (e: any) => {
     setIsVisibleTokenA(!isVisibleTokenA);
     setTokenA(e.target.value);
@@ -115,20 +147,68 @@ function Swap() {
     setIsSwap(isSwapClicked);
   }
   
-  const handleInputSwapChange = (e: any) => {
+  const handleInputSwapChange = async (e: any) => {
     setInputA(e.target.value);
-    setInputB(AutoExtractTokenAmount(e.target.value));
+    let outAmount = await previewOutAmount(e.target.value); 
+    setInputB(outAmount);
   };
 
-  const handleOutputSwapChange = (e: any) => {
+  const handleOutputSwapChange = async (e: any) => {
     setInputB(e.target.value);
-    setInputA(AutoExtractTokenAmount(e.target.value));
+    let inAmount = await previewInputAmount(e.target.value);
+    setInputA(inAmount);
   };
-  
-  function AutoExtractTokenAmount(baseTokenAmount: string) {
-    const inAmount = Number(baseTokenAmount);
-    const outAmount = (100000 * inAmount * 0.997) / (100000 + inAmount * 0.997);
-    return outAmount.toString();
+
+  async function previewOutAmount(amount: string): Promise<string> {
+    const _provider = getEthersProvider();
+    const chainId: number = Number((await _provider.getNetwork()).chainId);
+    
+    const walletClient = await getWalletClient({ chainId });
+    const network = {
+      chainId: walletClient?.chain.id,
+      name: walletClient?.chain.name,
+      ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+    }
+    const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+    accountAddress = walletClient?.account.address;
+
+    const provider = new BrowserProvider(transport, network)
+    const signer = new JsonRpcSigner(provider, accountAddress as string);
+    const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
+    const inAmount = ethers.parseEther(amount);
+    if (tokenA == tokenB) return "";
+
+    const tokenAInfo = getTokenInfoWithId(tokenA);
+    const tokenBInfo = getTokenInfoWithId(tokenB);
+    let outAmount = await tokenVault.previewSwapAmountOut(tokenAInfo?.address, tokenBInfo?.address, inAmount);
+    const ethAmount = ethers.formatEther(outAmount.toString());
+    return ethAmount.toString();
+  }
+
+  async function previewInputAmount(amount: string): Promise<string> {
+    const _provider = getEthersProvider();
+    const chainId: number = Number((await _provider.getNetwork()).chainId);
+    
+    const walletClient = await getWalletClient({ chainId });
+    const network = {
+      chainId: walletClient?.chain.id,
+      name: walletClient?.chain.name,
+      ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+    }
+    const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+    accountAddress = walletClient?.account.address;
+
+    const provider = new BrowserProvider(transport, network)
+    const signer = new JsonRpcSigner(provider, accountAddress as string);
+    const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
+    const outAmount = ethers.parseEther(amount);
+    if (tokenA == tokenB) return "";
+
+    const tokenAInfo = getTokenInfoWithId(tokenA);
+    const tokenBInfo = getTokenInfoWithId(tokenB);
+    let inAmount = await tokenVault.previewSwapAmountOut(tokenBInfo?.address, tokenAInfo?.address, outAmount);
+    const ethAmount = ethers.formatEther(inAmount.toString());
+    return ethAmount.toString();
   }
 
   const handleSwapClick = async (
@@ -165,6 +245,30 @@ function Swap() {
 
   async function swapExactToken0ForToken1_(token0Address: string, token1Address: string, inputA: string, flag:string) {
     try {
+      const _provider = getEthersProvider();
+      const chainId: number = Number((await _provider.getNetwork()).chainId);
+      
+      const walletClient = await getWalletClient({ chainId });
+      const network = {
+        chainId: walletClient?.chain.id,
+        name: walletClient?.chain.name,
+        ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+      }
+      const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+      accountAddress = walletClient?.account.address;
+
+      const provider = new BrowserProvider(transport, network)
+      const signer = new JsonRpcSigner(provider, accountAddress as string);
+      
+      const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
+      const spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
+      const wethToken = new ethers.Contract(wethAddress, WETH, signer);
+      const xxxToken = new ethers.Contract(xxxAddress, XXXToken, signer);
+
+      setSPCInfo({ id: '0', address: spcAddress, contract: spcToken});
+      setWETHInfo({ id: '1', address: wethAddress, contract: wethToken});
+      setXXXInfo({ id: '2', address: xxxAddress, contract: xxxToken});
+
       const shareEther = ethers.parseUnits(inputA, 'ether');
       if (flag.startsWith('0')) {
         await spcToken.approve(vaultAddress, shareEther);
@@ -180,14 +284,29 @@ function Swap() {
       }
       
       // Uniswap -> Vault -> User (asset amountOut)
-      await tokenVault.swapExactToken0ForToken1(token0Address, token1Address, shareEther, 1, await signer.getAddress());
-
+      const transaction = await tokenVault.swapExactToken0ForToken1(token0Address, token1Address, shareEther, 1, await signer.getAddress());
+      setIsSwapping(true);
+      
+      transaction.wait().then((receipt: { hash: any; blockNumber: any; }) => {
+        setIsSwapping(false);
+        setIsToastSuccessVisible(true);
+        setTimeout(() => {
+          setIsToastSuccessVisible(false);
+        }, 5000);
+        console.log("Transaction hash: ", receipt.hash);
+        console.log("Block number: ", receipt.blockNumber);
+      }).catch((error: any) => {
+        setIsToastDangerVisible(true);
+        setTimeout(() => {
+          setIsToastDangerVisible(false);
+        }, 5000);
+        console.log(error);
+      })
+      
     } catch (error: any) {
       console.log(error);
     }
   }
-
-  connectWallet();
 
   return (
      <div className="w-1/2 m-auto mt-32 shadow-xl rounded-3xl h-[580px] border-t-[1px] border-gray-100 dark:border-slate-800 dark:bg-slate-800">
@@ -227,16 +346,22 @@ function Swap() {
               </div>
               <div className="p-6">Estimated Gas: <span id="gas_estimate"></span></div>
               <div className="flex justify-center">
-                <button
-                  type="button"
-                  className="place-content-center mx-5 w-full py-2 px-10 text-lg font-bold text-white bg-primary rounded-md bg-opacity-85 hover:bg-opacity-90 disabled:bg-indigo-400"
-                  disabled={inputA === "0" || inputB === "0"}
-                  onClick={handleSwapClick}
-                >
-                  {inputA === "0" || inputB === "0"
-                    ? "Enter an amount"
-                    : "SWAP"}
-                </button>
+                {isSwapping?
+                (
+                  <SpinnerButton text="Swap" />
+                ):
+                (
+                  <button
+                    type="button"
+                    className="place-content-center mx-5 w-full py-2 px-10 text-lg font-bold text-white bg-primary rounded-md bg-opacity-85 hover:bg-opacity-90 disabled:bg-indigo-400"
+                    disabled={inputA === "0" || inputB === "0"}
+                    onClick={handleSwapClick}
+                  >
+                    {inputA === "0" || inputB === "0"
+                      ? "Enter an amount"
+                      : "SWAP"}
+                  </button>
+                )}
               </div>
           </div>) :
           (<div>
@@ -260,16 +385,22 @@ function Swap() {
               </div>
               <div className="p-6">Estimated Gas: <span id="gas_estimate"></span></div>
               <div className="flex justify-center">
-                <button
-                  type="button"
-                  className="place-content-center mx-5 w-full py-2 px-10 text-lg font-bold text-white bg-primary rounded-md bg-opacity-85 hover:bg-opacity-90 disabled:bg-indigo-400"
-                  disabled={inputA === "0" || inputB === "0"}
-                  onClick={handleSwapClick}
-                >
-                  {inputA === "0" || inputB === "0"
-                    ? "Enter an amount"
-                    : "SWAP"}
-                </button>
+                {isSwapping?
+                (
+                  <SpinnerButton text="Swapping" />
+                ):
+                (
+                  <button
+                    type="button"
+                    className="place-content-center mx-5 w-full py-2 px-10 text-lg font-bold text-white bg-primary rounded-md bg-opacity-85 hover:bg-opacity-90 disabled:bg-indigo-400"
+                    disabled={inputA === "0" || inputB === "0"}
+                    onClick={handleSwapClick}
+                  >
+                    {inputA === "0" || inputB === "0"
+                      ? "Enter an amount"
+                      : "SWAP"}
+                  </button>
+                )}
               </div>
           </div>)
         }
