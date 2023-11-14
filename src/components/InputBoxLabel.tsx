@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 function InputBoxLabel(props: any) {
+  const tokenBalance = parseFloat(props.balance).toFixed(3);
+  
   return (
     <div className="flex mb-5 justify-between pt-4 pb-4 items-center bg-blue-200 sm:container sm:mx-auto sm:px-4 rounded-2xl border-2 border-blue-600 box-border">
       <div className="flex-auto justify-center items-center">
@@ -24,7 +26,10 @@ function InputBoxLabel(props: any) {
         <div className="flex-auto font-bold text-2xl items-center">
           {props.Token}
         </div>
-        <div className="text-center font-medium">Balance: {props.balance}</div>
+        <div className="text-center">
+          <span className="font-medium">Balance: {tokenBalance}</span>
+          <button className="text-xs text-white ml-2 p-1 bg-primary rounded-xl" onClick={props.setMaxAmount}>MAX</button>
+        </div>
       </div>
     </div>
   );

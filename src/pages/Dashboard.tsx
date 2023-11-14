@@ -15,7 +15,7 @@ import ChartThree3 from '../components/ChartThree3.js';
 import { getEthersProvider } from '../utils/getEthersProvider.js';
 
 const Dashboard = () => {
-  const [depositedAmount, setDepositedAmount] = useState(''); 
+  const [depositedAmount, setDepositedAmount] = useState('0.00'); 
 
   const handleConnectClick = async () => {
     await connectWallet();

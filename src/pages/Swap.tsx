@@ -15,6 +15,7 @@ import ToastSuccess from '../components/toast/ToastSuccess.js';
 import ToastDanger from '../components/toast/ToastDanger.js';
 import Spinner from '../components/Spinner.js';
 import SpinnerButton from '../components/SpinnerButton.js';
+import ClaimTimerGroup from '../components/ClaimTimerGroup.js';
 // import Token from '../components/Token.js';
 initTE({ Tab });
 
@@ -30,8 +31,8 @@ function Swap() {
   const [xxxInfo, setXXXInfo] = useState<TokenInfo>({} as TokenInfo);
   const [tokenA, setTokenA] = useState('0');
   const [tokenB, setTokenB] = useState('0');
-  const [balanceA, setBalanceA] = useState("0");
-  const [balanceB, setBalanceB] = useState("0");
+  const [balanceA, setBalanceA] = useState("0.0");
+  const [balanceB, setBalanceB] = useState("0.0");
   const [inputA, setInputA] = useState("0");
   const [inputB, setInputB] = useState("0");
 
@@ -39,7 +40,7 @@ function Swap() {
   const [isSwapping, setIsSwapping] = useState(false);
   const [isVisibleTokenA, setIsVisibleTokenA] = useState(false);
   const [isVisibleTokenB, setIsVisibleTokenB] = useState(false);
-  
+  const [gasLimit, setGasLimit] = useState('0.00');
 
   const [isToastWarningVisible, setIsToastWarningVisible] = useState(false);
   const [isToastDangerVisible, setIsToastDangerVisible] = useState(false);
@@ -182,6 +183,12 @@ function Swap() {
     const tokenBInfo = getTokenInfoWithId(tokenB);
     let outAmount = await tokenVault.previewSwapAmountOut(tokenAInfo?.address, tokenBInfo?.address, inAmount);
     const ethAmount = ethers.formatEther(outAmount.toString());
+
+    const estimatedGasLimit = await tokenVault.swapExactToken0ForToken1.estimateGas(tokenAInfo?.address, tokenBInfo?.address, inAmount, 1, await signer.getAddress());
+    const gasEther = ethers.formatEther(estimatedGasLimit.toString());
+    console.log("gas ether ---------------------- >", gasEther);
+    setGasLimit(gasEther.toString());
+
     return ethAmount.toString();
   }
 
@@ -282,7 +289,7 @@ function Swap() {
         await xxxToken.approve(vaultAddress, shareEther);
         await xxxToken.transfer(vaultAddress, shareEther);
       }
-      
+
       // Uniswap -> Vault -> User (asset amountOut)
       const transaction = await tokenVault.swapExactToken0ForToken1(token0Address, token1Address, shareEther, 1, await signer.getAddress());
       setIsSwapping(true);
@@ -344,7 +351,7 @@ function Swap() {
                   onChange={handleOutputSwapChange}
                 />
               </div>
-              <div className="p-6">Estimated Gas: <span id="gas_estimate"></span></div>
+              <div className="p-6">Estimated Gas: <span id="gas_estimate">{gasLimit} ETH</span></div>
               <div className="flex justify-center">
                 {isSwapping?
                 (
@@ -383,7 +390,7 @@ function Swap() {
                   value={inputB}
                 />
               </div>
-              <div className="p-6">Estimated Gas: <span id="gas_estimate"></span></div>
+              <div className="p-6">Estimated Gas: <span id="gas_estimate">{gasLimit} ETH</span></div>
               <div className="flex justify-center">
                 {isSwapping?
                 (

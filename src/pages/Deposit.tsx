@@ -12,6 +12,7 @@ function DepositGroup(props: any) {
           onChange={props.handleSpcChange}
           isEmpty={!props.isAssetEmpty}
           value={props.spcAmount}
+          setMaxAmount={props.handleMaxSpc}
         />
         <InputBoxLabel
           Token={'WETH'}
@@ -19,6 +20,7 @@ function DepositGroup(props: any) {
           onChange={props.handleWethChange}
           isEmpty={!props.isAssetEmpty}
           value={props.wethAmount}
+          setMaxAmount={props.handleMaxWeth}
         />
         <div className="flex flex-row px-7 pt-3 justify-center items-center">
           <Button text={'Deposit'} buttonClicked={props.handleDepositClick} />

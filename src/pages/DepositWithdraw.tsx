@@ -22,15 +22,12 @@ const DepositWithdraw = (props: any) => {
   const [spcAmount, setSpcAmount] = useState('');
   const [wethAmount, setWethAmount] = useState('');
   const [shareAmount, setShareAmount] = useState('');
-  const [token0, setToken0] = useState('');
-  const [token1, setToken1] = useState('');
-  const [lpToken, setLPToken] = useState('');
+  const [token0, setToken0] = useState('0.0');
+  const [token1, setToken1] = useState('0.0');
+  const [lpToken, setLPToken] = useState('0.0');
   const [isShareEmpty] = useState<boolean | false>(false);
-
-  let provider;
-  let accountAddress: any;
-  let signer: ethers.ContractRunner | JsonRpcSigner | null | undefined;
-  let spcToken: ethers.Contract, wethToken: ethers.Contract, tokenVault: ethers.Contract;
+  const [depositAmountOfToken0, setDepositAmountOfToken0] = useState('0.0');
+  const [depositAmountOfToken1, setDepositAmountOfToken1] = useState('0.0');
   
   const wethAddress = '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14';
   const spcAddress = '0xe2B0E50603Cd62569A94125628D796ad21339299';
@@ -62,55 +59,23 @@ const DepositWithdraw = (props: any) => {
     setSpcAmount(previewAssets(e.target.value, false))
   };
 
+  const handleMaxSpc = () => {
+    setSpcAmount(token0);
+    setWethAmount(previewAssets(token0, true));
+  };
+
+  const handleMaxWeth = () => {
+    setWethAmount(token1);
+    setSpcAmount(previewAssets(token1, false))
+  };
+
   const handleShareChange = (e: any) => {
     setShareAmount(e.target.value);
   };
 
-  const handleConnectClick = async () => {
-    await connectMetaMask();
+  const handleMaxLP = () => {
+    setShareAmount(lpToken);
   };
-
-  handleConnectClick();
-  
-  async function connectMetaMask() {
-    const _provider = getEthersProvider();
-    const chainId: number = Number((await _provider.getNetwork()).chainId);
-    
-    const walletClient = await getWalletClient({ chainId });
-    const network = {
-      chainId: walletClient?.chain.id,
-      name: walletClient?.chain.name,
-      ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
-    }
-    const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
-    accountAddress = walletClient?.account.address;
-
-    provider = new BrowserProvider(transport, network)
-    signer = new JsonRpcSigner(provider, accountAddress as string);
-    // let id = await window.ethereum.chainId;
-    // if (id === ethMainnetId) return;  
-    
-    spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
-    wethToken = new ethers.Contract(wethAddress, WETH, signer);
-    tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
-
-    // Get balance of SPC, WETH token
-    let spcAmountWei = await spcToken.balanceOf(accountAddress);
-    let spcEth = ethers.formatEther(spcAmountWei);
-    let spcEthFixed = parseFloat(spcEth).toFixed(3);
-
-    let wethAmountWei = await wethToken.balanceOf(accountAddress);
-    let wethEth = ethers.formatEther(wethAmountWei);
-    let wethEthFixed = parseFloat(wethEth).toFixed(3);
-
-    setToken0(spcEthFixed.toString());
-    setToken1(wethEthFixed.toString());
-
-    let lpAmountWei = await tokenVault.balanceOf(accountAddress);
-    let lpEth = ethers.formatEther(lpAmountWei);
-    let lpEthFixed = parseFloat(lpEth).toFixed(3);
-    setLPToken(lpEthFixed);
-  }
 
   function previewAssets(amount: string, isToken0: boolean) {
     const inputAmount = Number(amount);
@@ -123,6 +88,46 @@ const DepositWithdraw = (props: any) => {
     }
   }
 
+  const connectWallet = async () => {
+    const _provider = getEthersProvider();
+    const chainId: number = Number((await _provider.getNetwork()).chainId);
+    
+    const walletClient = await getWalletClient({ chainId });
+    const network = {
+      chainId: walletClient?.chain.id,
+      name: walletClient?.chain.name,
+      ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+    }
+    const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+    const accountAddress = walletClient?.account.address;
+    const provider = new BrowserProvider(transport, network)
+    const signer = new JsonRpcSigner(provider, accountAddress as string);
+    
+    const spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
+    const wethToken = new ethers.Contract(wethAddress, WETH, signer);
+    const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
+
+    // Get balance of SPC, WETH token
+    const spcAmountWei = await spcToken.balanceOf(accountAddress);
+    const wethAmountWei = await wethToken.balanceOf(accountAddress);
+    const lpAmountWei = await tokenVault.balanceOf(accountAddress);
+    const spcEth = ethers.formatEther(spcAmountWei);
+    const wethEth = ethers.formatEther(wethAmountWei);    
+    const lpEth = ethers.formatEther(lpAmountWei);
+
+    setToken0(spcEth);
+    setToken1(wethEth);
+    setLPToken(lpEth);
+
+    const userInfo = await tokenVault.getUserInfo(accountAddress);
+    let token0Eth = ethers.formatEther(userInfo._depositAmountOfToken0);
+    let token1Eth = ethers.formatEther(userInfo._depositAmountOfToken1);
+    setDepositAmountOfToken0(parseFloat(token0Eth).toFixed(3));
+    setDepositAmountOfToken1(parseFloat(token1Eth).toFixed(3));
+  }
+
+  connectWallet();
+
   const handleDepositPairClick = async (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -132,8 +137,26 @@ const DepositWithdraw = (props: any) => {
 
   async function depositAssetPair_(spcAmount: string, wethAmount: string) {
     try {
+      const _provider = getEthersProvider();
+      const chainId: number = Number((await _provider.getNetwork()).chainId);
+      
+      const walletClient = await getWalletClient({ chainId });
+      const network = {
+        chainId: walletClient?.chain.id,
+        name: walletClient?.chain.name,
+        ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+      }
+      const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+      const accountAddress = walletClient?.account.address;
+      const provider = new BrowserProvider(transport, network)
+      const signer = new JsonRpcSigner(provider, accountAddress as string);
+      
+      const spcToken = new ethers.Contract(spcAddress, SpaceCredit, signer);
+      const wethToken = new ethers.Contract(wethAddress, WETH, signer);
+      const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
       const spcEther = ethers.parseUnits(spcAmount, 'ether');
       const wethEther = ethers.parseUnits(wethAmount, 'ether');
+
       // Deposit Asset
       await spcToken.approve(vaultAddress, spcEther);
       await wethToken.approve(vaultAddress, wethEther);
@@ -206,6 +229,21 @@ const DepositWithdraw = (props: any) => {
 
   async function withdrawAssetPair_(amountShare: string) {
     try {
+      const _provider = getEthersProvider();
+      const chainId: number = Number((await _provider.getNetwork()).chainId);
+      
+      const walletClient = await getWalletClient({ chainId });
+      const network = {
+        chainId: walletClient?.chain.id,
+        name: walletClient?.chain.name,
+        ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+      }
+      const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+      const accountAddress = walletClient?.account.address;
+      const provider = new BrowserProvider(transport, network)
+      const signer = new JsonRpcSigner(provider, accountAddress as string);
+      
+      const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
       const shareEther = ethers.parseUnits(amountShare, 'ether');
       // await tokenVault.withdrawAssetPair(shareEther);
       await tokenVault.approve(vaultAddress, shareEther);
@@ -224,7 +262,23 @@ const DepositWithdraw = (props: any) => {
 
   async function claimAssetPair_() {
     try{
-      const shareEther = ethers.parseUnits('0.000000005', 'ether');
+      const _provider = getEthersProvider();
+      const chainId: number = Number((await _provider.getNetwork()).chainId);
+      const walletClient = await getWalletClient({ chainId });
+      const network = {
+        chainId: walletClient?.chain.id,
+        name: walletClient?.chain.name,
+        ensAddress: walletClient?.chain.contracts?.ensRegistry?.address,
+      }
+      const transport = walletClient?.transport as Eip1193Provider; // Ensure transport is of type Eip1193Provider
+      const accountAddress = walletClient?.account.address;
+      const provider = new BrowserProvider(transport, network)
+      const signer = new JsonRpcSigner(provider, accountAddress as string);
+      
+      const tokenVault = new ethers.Contract(vaultAddress, TokenVault, signer);
+      const amount = parseFloat(lpToken) / 1000;
+      const claimAmount = amount.toFixed(5).toString();
+      const shareEther = ethers.parseUnits(claimAmount, 'ether');
       await tokenVault.claimUserFee(spcAddress, wethAddress, shareEther, accountAddress);
     } catch (error: any) {
       console.log(error);
@@ -234,7 +288,7 @@ const DepositWithdraw = (props: any) => {
   return (
     <div className='w-full bg-white flex m-auto h-[60vh] flex-row flex-wrap border-2 rounded-[12px] pl-0'>
       <ul
-        className="w-full mb-5 flex list-none flex-row flex-wrap border-b-0 pl-0"
+        className="w-full flex list-none flex-row flex-wrap border-b-0 pl-0"
         role="tablist"
         data-te-nav-ref
       >
@@ -273,6 +327,8 @@ const DepositWithdraw = (props: any) => {
             balanceOfToken1={token1}
             spcAmount={spcAmount}
             wethAmount={wethAmount}
+            handleMaxSpc={handleMaxSpc}
+            handleMaxWeth={handleMaxWeth}
           />
         }
         {isTab2Visible &&
@@ -281,12 +337,17 @@ const DepositWithdraw = (props: any) => {
             handleShareWithdrawClick={handleShareWithdrawClick}
             isShareEmpty={isShareEmpty}
             balanceOFLP={lpToken}
+            shareAmount={shareAmount}
+            handleMaxLP={handleMaxLP}
+            depositAmountOfToken0={depositAmountOfToken0}
+            depositAmountOfToken1={depositAmountOfToken1}
           />
         }
         {isTab3Visible &&
           <ClaimTimerGroup
             handleInputChange={props.handleInputChange}
             handleClaimClick={handleClaimClick}
+            lpToken={lpToken}
           />
         }
       </div>

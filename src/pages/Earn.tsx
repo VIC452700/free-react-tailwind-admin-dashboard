@@ -73,16 +73,21 @@ const Earn = () => {
   const [rows, setRows] = useState<TableRow[]>([]);
   const navigate = useNavigate();
   const [isAllSelected, setIsAllSelected] = useState(true);
+  
   const handleRowClick = (row: TableRow) => {
     navigate('/vault');
   }
+  
   const [searchQuery, setSearchQuery] = useState<string>("");
+  
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   }
+  
   const filteredRows = rows.filter(row =>
     row.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  
   const [buttonClicked, setButtonClicked] = useState<{ [key: string]: boolean }>({
     etherBtn: false,
     polygonBtn: false,
@@ -91,6 +96,7 @@ const Earn = () => {
     arbitrumBtn: false,
     cronosBtn: false
   });
+  
   const handleButtonClick = (buttonId: string, buttonRows: TableRow[]) => {
     if (buttonId === "clearBtn") {
       setIsAllSelected(true)
@@ -139,6 +145,7 @@ const Earn = () => {
     });
     setIsAllSelected(false);
   };
+  
   const rowMap: { [key: number]: TableRow } = {
     1: { id: 1, network: 'eth', name: 'SPC-WETH vLP', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
     // 2: { id: 2, network: 'eth', name: 'SPC-WETH vLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M' },
@@ -153,6 +160,7 @@ const Earn = () => {
     // 11: {id:11, network: 'cronos', name: 'USDC-USDR sLP - 1', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'},
     // 12: {id:12, network: 'cronos', name: 'USDC-USDR sLP - 2', wallet: 0, deposited: 0, apy: '41.65%', tvl: '$7.54M'}
   };
+  
   const buttons = [
     { id: 'etherBtn', label: <FaEthereum className="w-12 h-6" />, data: [rowMap[1]]},
     { id: 'polygonBtn', label: <img src="polygon.png" className="w-6 h-6 mr-3 ml-3" />, data: []},
@@ -161,10 +169,12 @@ const Earn = () => {
     { id: 'arbitrumBtn', label: <img src="arbitrum.png" className="w-6 h-6 mr-3 ml-3" />, data: []},
     { id: 'cronosBtn', label: <img src="cronos.png" className="w-6 h-6 mr-3 ml-3" />, data: []}
   ];
+  
   useEffect(() => {
     const initialRows: TableRow[] = Object.values(rowMap);
     setRows(initialRows);
   }, []);
+
   return (
     <>
       <div className="mb-4 flex justify-between items-center">
@@ -181,15 +191,60 @@ const Earn = () => {
             </button>
           ))}
         </div>
-        <button
-          id="clearBtn"
-          type="button"
-          onClick={() =>
-            handleButtonClick('clearBtn', Object.values(rowMap))
-          }  className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-black focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500 ml-auto">
-          Clear All
-        </button>
       </div>
+      <div className="mb-4 flex justify-between items-center">
+          <div className="font-medium border rounded-lg px-3">
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              All Vaults
+            </button>
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              Saved Vaults
+            </button>
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              My Vaults
+            </button>
+          </div>
+          <div className="font-medium border rounded-lg px-3">
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              Featured
+            </button>
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              StableCoins
+            </button>
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              Blue Chip
+            </button>
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              XFI Vaults
+            </button>
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              Correlated
+            </button>
+          </div>
+          <div className="font-medium border rounded-lg px-3">
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              Single
+            </button>
+            <button className="hover:text-black text-sm p-2.5 text-center inline-flex mx-2">
+              LP
+            </button>
+          </div>
+          <div className="font-medium">
+            <button className="border hover:text-black rounded-lg text-sm p-2.5 text-center inline-flex mx-2">
+              Filters
+            </button>
+          </div>
+          <div className="font-medium">
+          <button
+            id="clearBtn"
+            type="button"
+            onClick={() => handleButtonClick('clearBtn', Object.values(rowMap)) }
+            className="border hover:text-black focus:ring-4 focus:outline-none rounded-lg text-sm p-2.5 text-center inline-flex mx-2">
+            Clear All
+          </button>
+          </div>
+      </div>
+
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg border-t">
         <EarnTable rows={filteredRows} onRowClick={handleRowClick} searchQuery={searchQuery} handleSearchChange={handleSearchChange} />
       </div>
